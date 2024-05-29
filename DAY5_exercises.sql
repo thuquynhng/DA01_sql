@@ -52,4 +52,21 @@ where ID%2=1
 and description !='boring'
 order by rating desc
 ;
+--Exercise 10
+select teacher_id,
+count(distinct subject_id) as cnt
+from Teacher
+group by teacher_id
+;
+--Exercise 11
+select user_id,
+count(follower_id) as followers_count
+from Followers
+group by user_id
+order by user_id asc
+;
+--Exercise 12
+select class from Courses
+group by class
+having count(student) >=5
 
