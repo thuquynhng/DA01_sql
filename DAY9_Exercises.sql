@@ -10,7 +10,7 @@ FROM viewership
 --Exercise 2
 select *,
 case
-when x+y >z or z+x >y or y+z >x then 'Yes' 
+when x+y >z and z+x >y and y+z >x then 'Yes' 
 else 'No'
 end as triangle
 from Triangle
