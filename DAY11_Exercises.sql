@@ -33,14 +33,14 @@ round((open/total_timespent)*100.0, 2) as open_perc
 from snaps_timespending
 --Exercise 4
 with supercloud_customer as (
-SELECT a.customer_id, count(distinct b.product_category) as product	
-FROM customer_contracts as a
-left join products as b
-on a.product_id=b.product_id
-group by a.customer_id
+SELECT customers.customer_id, count(distinct products.product_category) as product	
+FROM customer_contracts as customers
+left join products 
+on customers.product_id=products.product_id
+group by customers.customer_id
 )
 select customer_id from supercloud_customer
 where product= (select count(distinct product_category) 
-from b)
+from products)
 order by customer_id
 --Exercise 5
