@@ -78,4 +78,78 @@ order by A.page_id
 
 ;
 --MID-COURSE TEST
+--Question 1
+select distinct replacement_cost
+from film
+order by replacement_cost
+;
+--Question 2
+select 
+case
+	when replacement_cost between 9.99 and 19.99 then 'low'
+	when replacement_cost between 20.00 and 24.99 then 'medium'
+	when replacement_cost between 25.00 and 29.99 then 'high'
+end as category,
+count(*) as film_count
+from film
+group by category
+;
+--Question 3
+select A.title, A.length, C.name as category_name
+from film as A
+join film_category as B
+on A.film_id=B.film_id
+join category as C
+on B.category_id=C.category_id
+where C.name in ('Drama', 'Sports')
+order by A.length desc
+;
+--Question 4
+select C.name as category_name, count(A.title)
+from film as A
+join film_category as B
+on A.film_id=B.film_id
+join category as C
+on B.category_id=C.category_id
+group by C.name
+order by count(A.title) desc
+;
+--Question 5
+select C.first_name || ' ' || C.last_name as actor_name, 
+count(A.title) as movies_count
+from film as A
+join film_actor as B
+on A.film_id=B.film_id
+join actor as C
+on B.actor_id=C.actor_id
+group by actor_name
+order by count(A.title) desc
+;
+--Question 6
+select A.address, count(B.customer_id)
+from address as A
+left join customer as B
+on A.address_id=B.address_id
+group by A.address
+having count(B.customer_id) =0
+;
+--Question 7
+select A.city, sum(D.amount) as revenue
+from city as A
+join address as B on A.city_id=B.city_id
+join customer as C on B.address_id=C.address_id
+join payment as D on C.customer_id=D.customer_id
+group by A.city
+order by sum(D.amount) desc
+;
+--Question 8
+select B.city || ','|| ' '|| A.country, 
+sum(E.amount) as revenue
+from country as A
+join city as B on A.country_id=B.country_id
+join address as C on B.city_id=C.city_id
+join customer as D on C.address_id=D.address_id
+join payment as E on D.customer_id=E.customer_id
+group by B.city || ','|| ' '|| A.country
+order by sum(E.amount) desc
 
