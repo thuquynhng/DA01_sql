@@ -26,5 +26,42 @@ where page_id not in
 where A.page_id=B.page_id) --xem bảng A có id nào ko trùng với bảng B hay ko, đó là những trang ko có lượt like
 ;
 --Exercise 5
-
-
+with july as (
+SELECT user_id,
+count(user_id),
+extract(month from event_date) as month
+from user_actions
+where event_type in ('sign-in','like','comment')
+group by user_id, month)
+select month,
+count(user_id) as monthly_active_users
+from july 
+where month = 7
+group by month
+having count(user_id) >1
+;
+--Exercise 6
+select to_char(trans_date,'yyyy-mm') as month,
+country,
+count(id) as trans_count,
+sum(case
+	when state='approved' then 1 else 0
+end) as approved_count,
+sum(amount) as trans_total_amount,
+sum(case
+	when state='approved' THEN amount else 0
+end) as approved_total_amount
+from Transactions
+group by to_char(trans_date,'yyyy-mm'), country
+;
+--Exercise 7
+with firstyear_cte as
+(select product_id, min(year) as minyear from Sales
+group by product_id)
+select A.product_id, A.year as first_year, A.quantity, A.price
+from Sales as A
+join firstyear_cte as B
+on A.product_id=B.product_id
+and A.year=B.minyear
+;
+--Exercise 8
