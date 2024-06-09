@@ -40,6 +40,28 @@ where month = 7
 group by month
 having count(user_id) >1
 ;
+with june_users as (
+SELECT user_id,
+count(user_id),
+extract(month from event_date) as month
+from user_actions
+where event_type in ('sign-in','like','comment')
+group by user_id, month),
+july_users as (
+SELECT user_id,
+count(user_id),
+extract(month from event_date) as month
+from user_actions
+where event_type in ('sign-in','like','comment')
+group by user_id, month)
+select A.month,
+count(A.user_id) as monthly_active_users
+from june_users as A
+join july_users as B on A.user_id=B.user_id
+where A.month in (6, 7)
+group by A.month
+having count(A.user_id) >1
+;
 --Exercise 6
 select to_char(trans_date,'yyyy-mm') as month,
 country,
