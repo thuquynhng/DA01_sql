@@ -75,3 +75,4 @@ where a.rank_per_month <=5
 --5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
 /*Thống kê tổng doanh thu theo ngày của từng danh mục sản phẩm (category) trong 3 tháng qua ( giả sử ngày hiện tại là 15/4/2022)
 Output: dates (yyyy-mm-dd), product_categories, revenue */
+
