@@ -37,22 +37,67 @@ nhưng duy trì ở mức ổn định (~58-62) --> sự tăng trưởng về s�
 /* Tìm các khách hàng trẻ tuổi nhất và lớn tuổi nhất theo từng giới tính ( Từ 1/2019-4/2022)
 Output: first_name, last_name, gender, age, tag (hiển thị youngest nếu trẻ tuổi nhất, oldest nếu lớn tuổi nhất) */
 
-with youngest as (
+with male_youngest as (
 select first_name,
-last_name, 
-age, gender,
-min(age) over(partition by gender) as youngest
-from bigquery-public-data.thelook_ecommerce.users 
-where created_at between '2019-01-01' AND '2022-04-30'
-order by age),
-oldest as (
+last_name,
+age,
+gender,
+case when age =(select min(age) from bigquery-public-data.thelook_ecommerce.users) then 'youngest'
+else 'unknown'
+end as tag
+from bigquery-public-data.thelook_ecommerce.users
+where gender ='M'
+and created_at between '2019-01-01' and '2022-04-30'),
+
+female_youngest as (
 select first_name,
-last_name, 
-age, gender,
-max(age) over(partition by gender) as oldest
-from bigquery-public-data.thelook_ecommerce.users 
-where created_at between '2019-01-01' AND '2022-04-30'
-order by age)
+last_name,
+age,
+gender,
+case when age =(select min(age) from bigquery-public-data.thelook_ecommerce.users) then 'youngest'
+else 'unknown'
+end as tag
+from bigquery-public-data.thelook_ecommerce.users
+where gender ='F'
+and created_at between '2019-01-01' and '2022-04-30'),
+
+male_oldest as (
+select first_name,
+last_name,
+age,
+gender,
+case when age =(select max(age) from bigquery-public-data.thelook_ecommerce.users) then 'oldest'
+else 'unknown'
+end as tag
+from bigquery-public-data.thelook_ecommerce.users
+where gender ='M'
+and created_at between '2019-01-01' and '2022-04-30'),
+
+female_oldest as (
+select first_name,
+last_name,
+age,
+gender,
+case when age =(select min(age) from bigquery-public-data.thelook_ecommerce.users) then 'oldest'
+else 'unknown'
+end as tag
+from bigquery-public-data.thelook_ecommerce.users
+where gender ='F'
+and created_at between '2019-01-01' and '2022-04-30')
+
+select * from male_youngest
+where tag ='youngest'
+union all
+select * from female_youngest
+where tag ='youngest'
+union all
+select * from male_oldest
+where tag ='oldest'
+union all
+select * from female_oldest
+where tag ='oldest'
+
+
 ;
 --4.Top 5 sản phẩm mỗi tháng
 /* Thống kê top 5 sản phẩm có lợi nhuận cao nhất từng tháng (xếp hạng cho từng sản phẩm). 
@@ -72,7 +117,23 @@ where created_at between '2019-01-01' and '2022-04-30') as a
 where a.rank_per_month <=5
 ;
 
---5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
+--5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục --chạy câu lệnh còn lỗi: Star expansion expression references column product_categories which is neither grouped nor aggregated at [9:8] 
 /*Thống kê tổng doanh thu theo ngày của từng danh mục sản phẩm (category) trong 3 tháng qua ( giả sử ngày hiện tại là 15/4/2022)
 Output: dates (yyyy-mm-dd), product_categories, revenue */
 
+with quantity_sold_cte as
+(select extract(year from b.created_at)||'-'||extract(month from b.created_at)||'-'||extract(day from b.created_at) as dates,
+a.category as product_categories,
+count(b.order_id) as quantity_sold
+from bigquery-public-data.thelook_ecommerce.products a
+join bigquery-public-data.thelook_ecommerce.order_items b on a.id=b.product_id
+group by 1, 2
+order by 1)
+select *,
+sum(quantity_sold*p.retail_price) over(partition by extract(year from oi.created_at)||'-'||extract(month from oi.created_at)||'-'||extract(day from oi.created_at) order by sum(q.quantity_sold*p.retail_price) desc) as revenue
+from quantity_sold_cte as q
+join bigquery-public-data.thelook_ecommerce.products p on q.product_categories=p.category
+join bigquery-public-data.thelook_ecommerce.order_items oi on p.id=oi.product_id
+where extract(year from oi.created_at)||'-'||extract(month from oi.created_at)||'-'||extract(day from oi.created_at) <='2022-04-15'
+group by 1
+order by 1
