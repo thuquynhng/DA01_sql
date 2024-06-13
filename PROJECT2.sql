@@ -108,8 +108,8 @@ select * from
 b.id as product_id,
 b.name as product_name,
 b.cost,
-b.retail_price-b.cost as sales,
-(b.retail_price-b.cost)-b.cost as profit,
+b.retail_price as sales,
+b.retail_price-b.cost as profit,
 dense_rank() over(partition by extract(year from c.created_at)||'-'||extract(month from c.created_at) order by (b.retail_price-b.cost)-b.cost desc) as rank_per_month
 from bigquery-public-data.thelook_ecommerce.products b
 join bigquery-public-data.thelook_ecommerce.order_items c on b.id=c.product_id
@@ -134,6 +134,6 @@ sum(quantity_sold*p.retail_price) over(partition by extract(year from oi.created
 from quantity_sold_cte as q
 join bigquery-public-data.thelook_ecommerce.products p on q.product_categories=p.category
 join bigquery-public-data.thelook_ecommerce.order_items oi on p.id=oi.product_id
-where extract(year from oi.created_at)||'-'||extract(month from oi.created_at)||'-'||extract(day from oi.created_at) <='2022-04-15'
+where q.dates <='2022-04-15'
 group by 1
 order by 1
