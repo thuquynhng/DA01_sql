@@ -207,3 +207,5 @@ round(100.00*m3/m1, 2) || '%' as m3,
 round(100.00*m4/m1, 2) || '%' as m4
 from customer_cohort)
 select * from retention_cohort;
+
+--Note: bị lỗi No matching signature for function EXTRACT for argument types ... at [11:2]
