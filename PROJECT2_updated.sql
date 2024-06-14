@@ -165,9 +165,5 @@ join bigquery-public-data.thelook_ecommerce.products as c on b.product_id=c.id
 order by a.month)
 ;
 
---2. Tạo retention cohort analysis
-with cohort_index as (
-select 
-)
 
 
