@@ -139,3 +139,35 @@ group by 1
 order by 1
 
 --Tạo metric trước khi dựng dashboard
+--1. Tạo dataset như mô tả và lưu vào bảng ảo view
+create view bigquery-public-data.thelook_ecommerce.vw_ecommerce_analyst as 
+( 
+with revenue_cte as (
+select extract(year from created_at)||'-'||extract(month from created_at) as month,
+sum(sale_price) as curr_revenue,
+count(order_id) as curr_order_count
+from bigquery-public-data.thelook_ecommerce.order_items
+group by extract(year from created_at)||'-'||extract(month from created_at) 
+) 
+select distinct c.category as product_category,
+a.month, 
+extract(year from b.created_at) as year,
+round((lead(a.curr_revenue) over(order by a.month)-a.curr_revenue)*100.00/a.curr_revenue, 2) as revenue_growth,
+round((lead(a.curr_order_count) over(order by a.month)-a.curr_order_count)*100.00/a.curr_order_count, 2) as order_growth,
+sum(b.sale_price) over(partition by a.month, c.category) as tpv,
+count(b.order_id) over(partition by a.month, c.category) as tpo,
+sum(c.cost) over(partition by a.month, c.category) as total_cost,
+sum(b.sale_price) over(partition by a.month, c.category)-sum(c.cost) over(partition by a.month, c.category) as total_profit,
+(sum(b.sale_price) over(partition by a.month, c.category)-sum(c.cost) over(partition by a.month, c.category))/sum(c.cost) over(partition by a.month, c.category) as profit_to_cost_ratio
+from revenue_cte as a
+join bigquery-public-data.thelook_ecommerce.order_items as b on a.month=concat(extract(year from b.created_at),'-',extract(month from b.created_at)) 
+join bigquery-public-data.thelook_ecommerce.products as c on b.product_id=c.id
+order by a.month)
+;
+
+--2. Tạo retention cohort analysis
+with cohort_index as (
+select 
+)
+
+
