@@ -137,3 +137,5 @@ join bigquery-public-data.thelook_ecommerce.order_items oi on p.id=oi.product_id
 where q.dates <='2022-04-15'
 group by 1
 order by 1
+
+--Tạo metric trước khi dựng dashboard
