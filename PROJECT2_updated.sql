@@ -169,15 +169,14 @@ order by a.month)
 with first_orders as (
 select user_id,
 format_date('%Y-%m', created_at) as invoicedate,
-min(format_date('%Y-%m', created_at)) as first_order_date
-from bigquery-public-data.thelook_ecommerce.order_items
-group by 1, 2)
+min(format_date('%Y-%m', created_at)) over(partition by user_id) as first_order_date
+from bigquery-public-data.thelook_ecommerce.order_items)
 
 , cohort_index as (
 select a.user_id, b.invoicedate,
 b.first_order_date as cohort_date,
-(extract(year from b.invoicedate)-extract(year from b.first_purchase_date))*12 
-	+ (extract(month from b.invoicedate)-extract(month from b.first_purchase_date))+1 as index,
+(extract(year from b.invoicedate)-extract(year from b.first_order_date))*12 
+	+ (extract(month from b.invoicedate)-extract(month from b.first_order_date))+1 as index,
 sum(a.sale_price) as revenue
 from bigquery-public-data.thelook_ecommerce.order_items as a
 join first_orders as b on a.user_id=b.user_id)
