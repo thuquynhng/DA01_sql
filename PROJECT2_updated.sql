@@ -212,4 +212,4 @@ tỷ lệ giữ chân khách hàng cũng khá thấp. Tỷ lệ giữ chân khá
 (tháng 4 - tháng 12). Điều này cho thấy công ty cần phát triển thêm các kênh thu hút khách hàng (như phân tích hành vi khách hàng, cải thiện 
 trải nghiệm của khách hàng, đổi mới các chiến dịch truyền thông, tiếp thị,...). Ngoài ra, công ty cần phân tích thêm lý do tại sao khách hàng
 không quay lại mua hàng nữa, từ đó có thể đưa ra các giải pháp để cải thiện (ví dụ: hướng dẫn, tư vấn khách hàng mới để họ quen với sản phẩm
-và dịch vụ của cty, khuyến khích họ mua hàng nhiều hơn).
+và dịch vụ của cty, khuyến khích họ mua hàng nhiều hơn) */
