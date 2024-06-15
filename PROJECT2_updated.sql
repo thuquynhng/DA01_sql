@@ -169,14 +169,14 @@ order by a.month)
 with first_orders as (
 select user_id,
 format_date('%Y-%m', created_at) as invoicedate,
-min(format_date('%Y-%m', created_at)) over(partition by user_id) as first_order_date
+min(created_at) over(partition by user_id) as first_order_date
 from bigquery-public-data.thelook_ecommerce.order_items)
 
 , cohort_index as (
 select a.user_id, b.invoicedate,
 b.first_order_date as cohort_date,
-(extract(year from b.invoicedate)-extract(year from b.first_order_date))*12 
-	+ (extract(month from b.invoicedate)-extract(month from b.first_order_date))+1 as index,
+(extract(year from a.created_at)-extract(year from b.first_order_date))*12 
+	+ (extract(month from a.created_at)-extract(month from b.first_order_date))+1 as index,
 sum(a.sale_price) as revenue
 from bigquery-public-data.thelook_ecommerce.order_items as a
 join first_orders as b on a.user_id=b.user_id)
@@ -207,4 +207,9 @@ round(100.00*m4/m1, 2) || '%' as m4
 from customer_cohort)
 select * from retention_cohort;
 
---Note: bị lỗi No matching signature for function EXTRACT for argument types ... at [11:2]
+/* Insights: Số lượng khách mua hàng lần đầu tiên và sau đó quay lại mua hàng trong vòng ba tháng của công ty có xu hướng giảm,
+tỷ lệ giữ chân khách hàng cũng khá thấp. Tỷ lệ giữ chân khách hàng có xu hướng cao hơn vào đầu năm (tháng 1 - tháng 3) so với những tháng sau 
+(tháng 4 - tháng 12). Điều này cho thấy công ty cần phát triển thêm các kênh thu hút khách hàng (như phân tích hành vi khách hàng, cải thiện 
+trải nghiệm của khách hàng, đổi mới các chiến dịch truyền thông, tiếp thị,...). Ngoài ra, công ty cần phân tích thêm lý do tại sao khách hàng
+không quay lại mua hàng nữa, từ đó có thể đưa ra các giải pháp để cải thiện (ví dụ: hướng dẫn, tư vấn khách hàng mới để họ quen với sản phẩm
+và dịch vụ của cty, khuyến khích họ mua hàng nhiều hơn).
